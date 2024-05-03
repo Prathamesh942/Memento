@@ -88,3 +88,25 @@ export const logoutUser = asyncHandler(async (req, res) => {
     .clearCookie("accessToken", options)
     .json(new ApiResponse(200, {}, "User logged out"));
 });
+
+export const updateUser = asyncHandler(async (req,res)=>{
+  try {
+    const entryToUpdate  = await User.findById(req.user._id);
+    const {username, email, password} = req.body;
+    const filteredFields = {
+        username,
+        email,
+        password
+    }
+    if(!entryToUpdate){
+        throw new ApiError(404, "user not found");
+    }
+    Object.assign(entryToUpdate, filteredFields);
+    console.log(entryToUpdate);
+    const updatedUser = await entryToUpdate.save();
+    return res.json( new ApiResponse(200,updatedUser,"Entry updated successfully"))
+  } catch (error) {
+      console.log("Error while updating user", error);
+      throw error;
+  }
+})
